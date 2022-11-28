@@ -201,8 +201,16 @@ class Geds:
             dist_geo_train = 0
             dist_geo_test = 0
 
+        threshold = 0.1 # geodesic threshold, TODO: make it a parameter
+        # mask_train = np.ones((dist_geo_train.shape[0], dist_geo_train.shape[1]))
+        # mask_test = np.ones((dist_geo_test.shape[0], dist_geo_test.shape[1]))
+        mask_train = np.where(dist_geo_train < threshold, 1, 0)
+        mask_test = np.where(dist_geo_test < threshold, 1, 0)
+        mask_train[0] = 1 # minimum of one neighbor
+        mask_test[0] = 1 # minimum of one neighbor
+
         # Original data are: X_train, X_test
 
         return context_struc_eucli_target_train, context_struc_eucli_target_test, \
                context_geo_target_dist_train, context_geo_target_dist_test, dist_geo_train, dist_geo_test,\
-               dist_eucli_train, dist_eucli_test, X_train, X_test, y_train, y_test, y_train_scale
+               dist_eucli_train, dist_eucli_test, mask_train, mask_test, X_train, X_test, y_train, y_test, y_train_scale

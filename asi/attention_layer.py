@@ -57,6 +57,7 @@ class Attention(Layer):
     def call(self, inputs):
         source_distance = inputs[0]  # Node features (N x F)
         context = inputs[1]
+        mask = inputs[2] # Mask (N x total number of neighbors)
 
         ######################## Attention data ########################
 
@@ -76,6 +77,9 @@ class Attention(Layer):
         weight = K.dot(simi, self.kernel)
         weight = K.bias_add(weight, self.bias)
         weight = K.softmax(weight)
+
+        # where the mask is 0, the weight is 0
+        weight = multiply([weight, mask])
 
         # repeats the previous vector as many times as the feature number plus the point target and features extras
         # (input_phenomenon + 1 + num_features_extras, seq)

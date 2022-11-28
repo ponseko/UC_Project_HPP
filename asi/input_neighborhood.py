@@ -45,7 +45,12 @@ def getcontext(shape_context_struc_target, shape_context_struc_w_lat_long,
         context_struc_eucli_target = 0
         dist_eucli = 0
 
+    if True: # ToDo add option to use or 
+        mask = Input(shape=(num_nearest,), name='mask')
+    else:
+        mask = None
+
     ####################################################################
 
     return context_geo_target_dist, context_struc_without_lat_long, context_struc_eucli_target, \
-           dist_geo, dist_eucli
+           dist_geo, dist_eucli, mask
