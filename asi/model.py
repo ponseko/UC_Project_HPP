@@ -357,7 +357,7 @@ class AttentionSpatialInterpolationModel:
                 predictions_train = model.predict(
                     [self.X_train[:, :], self.train_x_d[:, :num_nearest_geo, :],
                      self.train_x_p[:, :num_nearest_eucli, :], self.train_x_g[:, :num_nearest_geo],
-                     self.train_x_e[:, :num_nearest_eucli], self.test_mask[:, :]], batch_size=batch_size)
+                     self.train_x_e[:, :num_nearest_eucli], self.train_mask[:, :]], batch_size=batch_size)
 
             elif self.geo:
                 # test
@@ -368,7 +368,7 @@ class AttentionSpatialInterpolationModel:
                 # train
                 predictions_train = model.predict(
                     [self.X_train[:, :], self.train_x_d[:, :num_nearest_geo, :],
-                     self.train_x_g[:, :num_nearest_geo], self.test_mask[:, :]],
+                     self.train_x_g[:, :num_nearest_geo], self.train_mask[:, :]],
                     batch_size=batch_size)
             elif self.euclidean:
                 # test
@@ -378,7 +378,7 @@ class AttentionSpatialInterpolationModel:
                 # train
                 predictions_train = model.predict(
                     [self.X_train[:, :],
-                     self.train_x_p[:, :num_nearest_eucli, :], self.train_x_e[:, :num_nearest_eucli], self.test_mask[:, :]],
+                     self.train_x_p[:, :num_nearest_eucli, :], self.train_x_e[:, :num_nearest_eucli], self.train_mask[:, :]],
                     batch_size=batch_size)
             elif not self.geo and not self.euclidean:
                 # test
@@ -386,7 +386,7 @@ class AttentionSpatialInterpolationModel:
                     [self.X_test[:, :], self.test_mask[:, :]], batch_size=batch_size)
                 # train
                 predictions_train = model.predict(
-                    [self.X_train[:, :], self.test_mask[:, :]],
+                    [self.X_train[:, :], self.train_mask[:, :]],
                     batch_size=batch_size)
 
             predictions_train_dim = np.reshape(predictions_train, (self.y_train.shape[0],))
