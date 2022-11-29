@@ -27,7 +27,8 @@ class AttentionSpatialInterpolationModel:
     def __init__(self, id_dataset: str = None, num_nearest: int = None, early_stopping: bool = True,
                  geo: bool = True, euclidean: bool = True, scale: bool = True,
                  sequence: str = '', input_target_context=True, input_dist_context_geo=True,
-                 input_dist_context_eucl=False, scale_euclidean=True, scale_geo=False):
+                 input_dist_context_eucl=False, scale_euclidean=True, scale_geo=False, 
+                 use_masking=False, mask_dist_threshold=0.1):
         """
 
         :param id_dataset:
@@ -59,6 +60,9 @@ class AttentionSpatialInterpolationModel:
         # Location of the files
         self.path = PATH
 
+        self.use_masking = use_masking
+        self.mask_dist_threshold = mask_dist_threshold
+
         ######################## Dataset ########################
 
         # id dataset
@@ -80,7 +84,8 @@ class AttentionSpatialInterpolationModel:
                                                      input_dist_context_geo=self.input_dist_context_geo,
                                                      input_dist_context_eucl=self.input_dist_context_eucl,
                                                      scale_euclidean=self.scale_euclidean,
-                                                     scale_geo=self.scale_geo)()
+                                                     scale_geo=self.scale_geo,
+                                                     mask_dist_threshold=self.mask_dist_threshold)()
 
         # the shape of the features datasets
         # input
@@ -198,7 +203,8 @@ class AttentionSpatialInterpolationModel:
         mask = getcontext(self.shape_context_struc_target,
                                 self.shape_context_struc_w_lat_long,
                                 self.shape_context_geo_target_dist, self.num_nearest,
-                                self.geo, self.euclidean, num_nearest_geo, num_nearest_eucli)
+                                self.geo, self.euclidean, num_nearest_geo, num_nearest_eucli,
+                                use_masking=self.use_masking)
 
         ######################## Interpolation ########################
 
@@ -230,7 +236,6 @@ class AttentionSpatialInterpolationModel:
             euclidean=self.euclidean,
             activation=activation,
             mask=mask
-
         ).run()
 
         ######################## Regression Layer ########################
@@ -294,21 +299,24 @@ class AttentionSpatialInterpolationModel:
             #
             features = [self.X_train[:, :], self.train_x_d[:, :num_nearest_geo, :],
                         self.train_x_p[:, :num_nearest_eucli, :], self.train_x_g[:, :num_nearest_geo],
-                        self.train_x_e[:, :num_nearest_eucli], self.train_mask[:, :]]
+                        self.train_x_e[:, :num_nearest_eucli]]
 
         elif self.geo and not self.euclidean:
             #
             features = [self.X_train[:, :], self.train_x_d[:, :num_nearest_geo, :],
-                        self.train_x_g[:, :num_nearest_geo], self.train_mask[:, :]]
+                        self.train_x_g[:, :num_nearest_geo]]
 
         elif self.euclidean and not self.geo:
             #
             features = [self.X_train[:, :], self.train_x_p[:, :num_nearest_eucli, :],
-                        self.train_x_e[:, :num_nearest_eucli], self.train_mask[:, :]]
+                        self.train_x_e[:, :num_nearest_eucli]]
 
         elif not self.geo and not self.euclidean:
             #
-            features = [self.X_train[:, :], self.train_mask[:, :]]
+            features = [self.X_train[:, :]]
+        
+        if self.use_masking:
+            features.append(self.train_mask[:, :])
 
         if self.early_stopping:
             fit = model.fit(features, [self.y_train], epochs=epochs, batch_size=batch_size,
@@ -349,45 +357,40 @@ class AttentionSpatialInterpolationModel:
 
             if self.geo and self.euclidean:
                 # test
-                predictions_test = model.predict(
-                    [self.X_test[:, :], self.test_x_d[:, :num_nearest_geo, :],
+                inp_test = [self.X_test[:, :], self.test_x_d[:, :num_nearest_geo, :],
                      self.test_x_p[:, :num_nearest_eucli, :], self.test_x_g[:, :num_nearest_geo],
-                     self.test_x_e[:, :num_nearest_eucli], self.test_mask[:, :]], batch_size=batch_size)
+                     self.test_x_e[:, :num_nearest_eucli], self.test_mask[:, :]]
                 # train
-                predictions_train = model.predict(
-                    [self.X_train[:, :], self.train_x_d[:, :num_nearest_geo, :],
+                inp_train = [self.X_train[:, :], self.train_x_d[:, :num_nearest_geo, :],
                      self.train_x_p[:, :num_nearest_eucli, :], self.train_x_g[:, :num_nearest_geo],
-                     self.train_x_e[:, :num_nearest_eucli], self.train_mask[:, :]], batch_size=batch_size)
+                     self.train_x_e[:, :num_nearest_eucli], self.train_mask[:, :]]
 
             elif self.geo:
                 # test
-                predictions_test = model.predict(
-                    [self.X_test[:, :], self.test_x_d[:, :num_nearest_geo, :],
-                     self.test_x_g[:, :num_nearest_geo], self.test_mask[:, :]],
-                    batch_size=batch_size)
+                inp_test = [self.X_test[:, :], self.test_x_d[:, :num_nearest_geo, :],
+                     self.test_x_g[:, :num_nearest_geo], self.test_mask[:, :]]
                 # train
-                predictions_train = model.predict(
-                    [self.X_train[:, :], self.train_x_d[:, :num_nearest_geo, :],
-                     self.train_x_g[:, :num_nearest_geo], self.train_mask[:, :]],
-                    batch_size=batch_size)
+                inp_train = [self.X_train[:, :], self.train_x_d[:, :num_nearest_geo, :],
+                     self.train_x_g[:, :num_nearest_geo], self.train_mask[:, :]]
             elif self.euclidean:
                 # test
-                predictions_test = model.predict(
-                    [self.X_test[:, :],
-                     self.test_x_p[:, :num_nearest_eucli, :], self.test_x_e[:, :num_nearest_eucli], self.test_mask[:, :]], batch_size=batch_size)
+                inp_test = [self.X_test[:, :],
+                     self.test_x_p[:, :num_nearest_eucli, :], self.test_x_e[:, :num_nearest_eucli], self.test_mask[:, :]]
                 # train
-                predictions_train = model.predict(
-                    [self.X_train[:, :],
-                     self.train_x_p[:, :num_nearest_eucli, :], self.train_x_e[:, :num_nearest_eucli], self.train_mask[:, :]],
-                    batch_size=batch_size)
+                inp_train = [self.X_train[:, :],
+                     self.train_x_p[:, :num_nearest_eucli, :], self.train_x_e[:, :num_nearest_eucli], self.train_mask[:, :]]
             elif not self.geo and not self.euclidean:
                 # test
-                predictions_test = model.predict(
-                    [self.X_test[:, :], self.test_mask[:, :]], batch_size=batch_size)
+                inp_test = [self.X_test[:, :], self.test_mask[:, :]]
                 # train
-                predictions_train = model.predict(
-                    [self.X_train[:, :], self.train_mask[:, :]],
-                    batch_size=batch_size)
+                inp_train = [self.X_train[:, :], self.train_mask[:, :]]
+
+            if self.use_masking:
+                inp_test.append(self.test_mask[:, :])
+                inp_train.append(self.train_mask[:, :])
+                
+            predictions_test = model.predict(inp_test, batch_size=batch_size)
+            predictions_train = model.predict(inp_train, batch_size=batch_size)
 
             predictions_train_dim = np.reshape(predictions_train, (self.y_train.shape[0],))
             predictions_test_dim = np.reshape(predictions_test, (self.y_test.shape[0],))

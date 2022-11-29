@@ -4,7 +4,7 @@ class train:
 
     def __init__(self, sigma, learning_rate, batch_size, num_neuron, num_layers, size_embedded,
                  num_nearest_geo, num_nearest_eucli, id_dataset, label, graph_label, num_nearest,
-                 epochs, validation_split, early_stopping, optimier, **kwargs):
+                 epochs, validation_split, early_stopping, optimier, use_masking, mask_dist_threshold=None, **kwargs):
 
         """
 
@@ -43,16 +43,25 @@ class train:
         self.LABEL = label
         self.EARLY_STOPPING = early_stopping
         self.GRAPH_LABEL = graph_label
+        self.USE_MASKING = use_masking
+        self.MASK_DIST_THRESHOLD = mask_dist_threshold
 
 
     def __call__(self):
+        
+        ####################################### Masking params #################################
+        if self.USE_MASKING:
+            assert self.MASK_DIST_THRESHOLD is not None, 'mask_dist_threshold is required if use_masking is True'
+            assert self.NUM_NEAREST == self.NUM_NEAREST_GEO == self.NUM_NEAREST_EUCLI, 'num_nearest, num_nearest_geo, num_nearest_eucli must be the same value if use_masking is True'
 
         ####################################### Model ##########################################
 
         # build of the object
         spatial = asi(id_dataset=self.ID_DATASET,
                       num_nearest=self.NUM_NEAREST,
-                      early_stopping=self.EARLY_STOPPING
+                      early_stopping=self.EARLY_STOPPING,
+                      use_masking=self.USE_MASKING,
+                      mask_dist_threshold=self.MASK_DIST_THRESHOLD
                       )
 
         # build of the model
@@ -91,17 +100,19 @@ class train:
                        spatial.train_x_d[:, :self.NUM_NEAREST_GEO, :],
                        spatial.train_x_p[:, :self.NUM_NEAREST_EUCLI, :],
                        spatial.train_x_g[:, :self.NUM_NEAREST_GEO],
-                       spatial.train_x_e[:, :self.NUM_NEAREST_EUCLI],
-                       spatial.train_mask[:, :]]
+                       spatial.train_x_e[:, :self.NUM_NEAREST_EUCLI]]
         )
+        if self.USE_MASKING:
+            DATA_TRAIN[0].append(spatial.train_mask[:, :])
 
         DATA_TEST = ([spatial.X_test,
                       spatial.test_x_d[:, :self.NUM_NEAREST_GEO, :],
                       spatial.test_x_p[:, :self.NUM_NEAREST_EUCLI, :],
                       spatial.test_x_g[:, :self.NUM_NEAREST_GEO],
-                      spatial.test_x_e[:, :self.NUM_NEAREST_EUCLI],
-                      spatial.test_mask[:, :]]
+                      spatial.test_x_e[:, :self.NUM_NEAREST_EUCLI]]
         )
+        if self.USE_MASKING:
+            DATA_TEST[0].append(spatial.test_mask[:, :])
 
         #Embedded
         embedded_train = spatial.output_layer(model=model,

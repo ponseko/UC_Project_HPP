@@ -3,7 +3,7 @@ from tensorflow.keras.layers import Input
 
 def getcontext(shape_context_struc_target, shape_context_struc_w_lat_long,
                shape_context_geo_target_dist, num_nearest,
-               geo, euclidean, num_nearest_geo, num_nearest_eucli):
+               geo, euclidean, num_nearest_geo, num_nearest_eucli, use_masking):
     """
 
     :param shape_context_struc_target:
@@ -45,7 +45,7 @@ def getcontext(shape_context_struc_target, shape_context_struc_w_lat_long,
         context_struc_eucli_target = 0
         dist_eucli = 0
 
-    if True: # ToDo add option to use or 
+    if use_masking: # masking
         mask = Input(shape=(num_nearest,), name='mask')
     else:
         mask = None

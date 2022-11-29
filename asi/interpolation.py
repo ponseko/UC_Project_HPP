@@ -105,6 +105,9 @@ class Interpolation:
 
 
         if self.euclidean:
+            inp = [self.dist_eucli, self.context_struc_eucli_target]
+            if self.mask is not None:
+                inp.append(self.mask)
             mean_struct_eucli = attention(sigma=self.sigma_struct_eucli,  # compatibility function
                                     num_nearest=self.num_nearest_eucli,
                                     shape_input_phenomenon=self.shape_input_phenomenon,
@@ -113,11 +116,14 @@ class Interpolation:
                                     calculate_distance=self.cal_dist_struct,  # distance
                                     graph_label=self.graph_label + '_weight_struct_eucli',  # label
                                     suffix_mean='mean_strucut_eucli'  # label
-                                    )([self.dist_eucli, self.context_struc_eucli_target, self.mask])
+                                    )(inp)
 
         ######################## Geo attention data ###############################
 
         if self.geo:
+            inp = [self.dist_geo, self.context_geo_target_dist]
+            if self.mask is not None:
+                inp.append(self.mask)
             mean_geo = attention(sigma=self.sigma_geo,  # compatibility function
                            num_nearest=self.num_nearest_geo,
                            shape_input_phenomenon=self.shape_input_phenomenon,
@@ -126,7 +132,7 @@ class Interpolation:
                            calculate_distance=self.cal_dist_geo,  # distance
                            graph_label=self.graph_label + '_weight_geo',  # label
                            suffix_mean='mean_geo'  # label
-                           )([self.dist_geo, self.context_geo_target_dist, self.mask])
+                           )(inp)
 
         ######################## Input hiden layer ########################
 
