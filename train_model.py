@@ -96,23 +96,24 @@ class train:
 
 
         ############################ Feature Extraction ###########################################
-        DATA_TRAIN = ([spatial.X_train,
+        DATA_TRAIN = [spatial.X_train,
                        spatial.train_x_d[:, :self.NUM_NEAREST_GEO, :],
                        spatial.train_x_p[:, :self.NUM_NEAREST_EUCLI, :],
                        spatial.train_x_g[:, :self.NUM_NEAREST_GEO],
                        spatial.train_x_e[:, :self.NUM_NEAREST_EUCLI]]
-        )
+        
         if self.USE_MASKING:
-            DATA_TRAIN[0].append(spatial.train_mask[:, :])
+            DATA_TRAIN.append(spatial.train_mask[:, :])
 
-        DATA_TEST = ([spatial.X_test,
+
+        DATA_TEST = [spatial.X_test,
                       spatial.test_x_d[:, :self.NUM_NEAREST_GEO, :],
                       spatial.test_x_p[:, :self.NUM_NEAREST_EUCLI, :],
                       spatial.test_x_g[:, :self.NUM_NEAREST_GEO],
                       spatial.test_x_e[:, :self.NUM_NEAREST_EUCLI]]
-        )
+        
         if self.USE_MASKING:
-            DATA_TEST[0].append(spatial.test_mask[:, :])
+            DATA_TEST.append(spatial.test_mask[:, :])
 
         #Embedded
         embedded_train = spatial.output_layer(model=model,

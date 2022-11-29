@@ -359,36 +359,36 @@ class AttentionSpatialInterpolationModel:
                 # test
                 inp_test = [self.X_test[:, :], self.test_x_d[:, :num_nearest_geo, :],
                      self.test_x_p[:, :num_nearest_eucli, :], self.test_x_g[:, :num_nearest_geo],
-                     self.test_x_e[:, :num_nearest_eucli], self.test_mask[:, :]]
+                     self.test_x_e[:, :num_nearest_eucli]]
                 # train
                 inp_train = [self.X_train[:, :], self.train_x_d[:, :num_nearest_geo, :],
                      self.train_x_p[:, :num_nearest_eucli, :], self.train_x_g[:, :num_nearest_geo],
-                     self.train_x_e[:, :num_nearest_eucli], self.train_mask[:, :]]
+                     self.train_x_e[:, :num_nearest_eucli]]
 
             elif self.geo:
                 # test
                 inp_test = [self.X_test[:, :], self.test_x_d[:, :num_nearest_geo, :],
-                     self.test_x_g[:, :num_nearest_geo], self.test_mask[:, :]]
+                     self.test_x_g[:, :num_nearest_geo]]
                 # train
                 inp_train = [self.X_train[:, :], self.train_x_d[:, :num_nearest_geo, :],
-                     self.train_x_g[:, :num_nearest_geo], self.train_mask[:, :]]
+                     self.train_x_g[:, :num_nearest_geo]]
             elif self.euclidean:
                 # test
                 inp_test = [self.X_test[:, :],
-                     self.test_x_p[:, :num_nearest_eucli, :], self.test_x_e[:, :num_nearest_eucli], self.test_mask[:, :]]
+                     self.test_x_p[:, :num_nearest_eucli, :], self.test_x_e[:, :num_nearest_eucli]]
                 # train
                 inp_train = [self.X_train[:, :],
-                     self.train_x_p[:, :num_nearest_eucli, :], self.train_x_e[:, :num_nearest_eucli], self.train_mask[:, :]]
+                     self.train_x_p[:, :num_nearest_eucli, :], self.train_x_e[:, :num_nearest_eucli]]
             elif not self.geo and not self.euclidean:
                 # test
-                inp_test = [self.X_test[:, :], self.test_mask[:, :]]
+                inp_test = [self.X_test[:, :]]
                 # train
-                inp_train = [self.X_train[:, :], self.train_mask[:, :]]
+                inp_train = [self.X_train[:, :]]
 
             if self.use_masking:
                 inp_test.append(self.test_mask[:, :])
                 inp_train.append(self.train_mask[:, :])
-                
+            
             predictions_test = model.predict(inp_test, batch_size=batch_size)
             predictions_train = model.predict(inp_train, batch_size=batch_size)
 
@@ -427,8 +427,8 @@ class AttentionSpatialInterpolationModel:
 
 
             return (mae_log_test, np.sqrt(rmse_test), mape_test, mae_log_train, np.sqrt(rmse_train),  mape_train)
-        except:
-
+        except Exception as e:
+            print(e)
             return (np.inf, np.inf, np.inf, np.inf, np.inf, np.inf)
 
     def architecture(self, fitted_model, label: str = None):
