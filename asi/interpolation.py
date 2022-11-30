@@ -13,7 +13,7 @@ class Interpolation:
                  type_compat_funct_eucli, type_compat_funct_geo, num_features_extras_struct,
                  num_features_extras_geo, cal_dist_struct, cal_dist_geo, graph_label, dist_eucli, activation,
                  dist_geo, input_phe_w_lat_long, geo, euclidean, num_nearest_geo, num_nearest_eucli,
-                 sigma: list = None, num_nearest: int = None):
+                 mask, sigma: list = None, num_nearest: int = None):
 
         """
 
@@ -70,7 +70,8 @@ class Interpolation:
         self.euclidean = euclidean
         self.num_nearest_geo = num_nearest_geo
         self.num_nearest_eucli = num_nearest_eucli
-        self.activation = activation
+        self.activation = activation,
+        self.mask = mask
 
         self.choices = {
             'simple asi': self.simpleasi
@@ -104,6 +105,9 @@ class Interpolation:
 
 
         if self.euclidean:
+            inp = [self.dist_eucli, self.context_struc_eucli_target]
+            if self.mask is not None:
+                inp.append(self.mask)
             mean_struct_eucli = attention(sigma=self.sigma_struct_eucli,  # compatibility function
                                     num_nearest=self.num_nearest_eucli,
                                     shape_input_phenomenon=self.shape_input_phenomenon,
@@ -112,11 +116,14 @@ class Interpolation:
                                     calculate_distance=self.cal_dist_struct,  # distance
                                     graph_label=self.graph_label + '_weight_struct_eucli',  # label
                                     suffix_mean='mean_strucut_eucli'  # label
-                                    )([self.dist_eucli, self.context_struc_eucli_target])
+                                    )(inp)
 
         ######################## Geo attention data ###############################
 
         if self.geo:
+            inp = [self.dist_geo, self.context_geo_target_dist]
+            if self.mask is not None:
+                inp.append(self.mask)
             mean_geo = attention(sigma=self.sigma_geo,  # compatibility function
                            num_nearest=self.num_nearest_geo,
                            shape_input_phenomenon=self.shape_input_phenomenon,
@@ -125,7 +132,7 @@ class Interpolation:
                            calculate_distance=self.cal_dist_geo,  # distance
                            graph_label=self.graph_label + '_weight_geo',  # label
                            suffix_mean='mean_geo'  # label
-                           )([self.dist_geo, self.context_geo_target_dist])
+                           )(inp)
 
         ######################## Input hiden layer ########################
 

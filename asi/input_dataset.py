@@ -13,7 +13,7 @@ class Geds:
     def __init__(self, id_dataset: str, num_nearest: int, geo: bool = True, euclidean: bool = True,
                  sequence: str = '', scale: bool = True, input_target_context=True,
                  input_dist_context_geo=True, input_dist_context_eucl=False, scale_euclidean=True,
-                 scale_geo=False):
+                 scale_geo=False, mask_dist_threshold: float = 0.1):
         """
 
         :param id_dataset:
@@ -41,6 +41,7 @@ class Geds:
         self.input_dist_context_eucl = input_dist_context_eucl
         self.scale_euclidean = scale_euclidean
         self.scale_geo = scale_geo
+        self.mask_dist_threshold = mask_dist_threshold
 
     def __call__(self):
 
@@ -201,8 +202,14 @@ class Geds:
             dist_geo_train = 0
             dist_geo_test = 0
 
+        # Mask creation. Just create maks regardless if masking is enabled
+        mask_train = np.where(dist_geo_train < self.mask_dist_threshold, 1, 0)
+        mask_test = np.where(dist_geo_test < self.mask_dist_threshold, 1, 0)
+        mask_train[:, 0] = 1 # first element to 1, minimum of 1 neighbour
+        mask_test[:, 0] = 1 # first element to 1, minimum of 1 neighbour
+
         # Original data are: X_train, X_test
 
         return context_struc_eucli_target_train, context_struc_eucli_target_test, \
                context_geo_target_dist_train, context_geo_target_dist_test, dist_geo_train, dist_geo_test,\
-               dist_eucli_train, dist_eucli_test, X_train, X_test, y_train, y_test, y_train_scale
+               dist_eucli_train, dist_eucli_test, mask_train, mask_test, X_train, X_test, y_train, y_test, y_train_scale

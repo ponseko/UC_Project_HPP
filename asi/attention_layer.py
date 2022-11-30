@@ -58,6 +58,10 @@ class Attention(Layer):
         source_distance = inputs[0]  # Node features (N x F)
         context = inputs[1]
 
+        mask = None
+        if len(inputs) > 2: # masking is enabled
+            mask = inputs[2] # Mask (N x total number of neighbors)
+
         ######################## Attention data ########################
 
         if self.calculate_distance[0]:
@@ -75,6 +79,11 @@ class Attention(Layer):
         # calculates the weights associated with each neighbor (m, seq)
         weight = K.dot(simi, self.kernel)
         weight = K.bias_add(weight, self.bias)
+        
+        if mask is not None: # masking is enabled
+            # where the mask is 0, the weight is 0
+            weight = multiply([weight, mask])
+
         weight = K.softmax(weight)
 
         # repeats the previous vector as many times as the feature number plus the point target and features extras
