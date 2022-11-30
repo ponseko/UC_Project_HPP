@@ -79,11 +79,12 @@ class Attention(Layer):
         # calculates the weights associated with each neighbor (m, seq)
         weight = K.dot(simi, self.kernel)
         weight = K.bias_add(weight, self.bias)
-        weight = K.softmax(weight)
-
+        
         if mask is not None: # masking is enabled
             # where the mask is 0, the weight is 0
             weight = multiply([weight, mask])
+
+        weight = K.softmax(weight)
 
         # repeats the previous vector as many times as the feature number plus the point target and features extras
         # (input_phenomenon + 1 + num_features_extras, seq)
