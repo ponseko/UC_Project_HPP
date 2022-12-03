@@ -47,7 +47,7 @@ class train:
         self.MASK_DIST_THRESHOLD = mask_dist_threshold
 
 
-    def __call__(self):
+    def __call__(self, SEQUENCE=''):
         
         ####################################### Masking params #################################
         if self.USE_MASKING:
@@ -61,7 +61,8 @@ class train:
                       num_nearest=self.NUM_NEAREST,
                       early_stopping=self.EARLY_STOPPING,
                       use_masking=self.USE_MASKING,
-                      mask_dist_threshold=self.MASK_DIST_THRESHOLD
+                      mask_dist_threshold=self.MASK_DIST_THRESHOLD,
+                      sequence=SEQUENCE
                       )
 
         # build of the model
