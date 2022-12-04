@@ -37,15 +37,6 @@ def main(rerun_coords, train_size):
     y_train, X_train = train['Price'], train.drop('Price', axis=1)
     y_test, X_test = test['Price'], test.drop('Price', axis=1)
 
-
-    X_train: pd.DataFrame
-    tmp = X_train.to_numpy()
-    print("=========")
-    print(X_train.dtypes)
-    print(tmp.dtype)
-    print(tmp.shape)
-    print("=========")
-
     np.save('X_train.npy', X_train.to_numpy())
     np.save('y_train.npy', y_train.to_numpy())
     np.save('X_test.npy', X_test.to_numpy())
@@ -157,9 +148,6 @@ def pre_process_data(raw_data: pd.DataFrame) -> pd.DataFrame:
 
     # Floor
     processed_data['N_floors'] = processed_data['Floors'].apply(lambda x: int(x.split(' ')[0])).astype(np.int32)
-    # processed_data['Has_basement'] = processed_data['Floors'].apply(lambda x: 1 if 'kelder' in x else 0).astype(np.int32)
-    # processed_data['Has_loft'] = processed_data['Floors'].apply(lambda x: 1 if 'zolder' in x else 0).astype(np.int32)
-    # processed_data['Has_attic'] = processed_data['Floors'].apply(lambda x: 1 if 'vliering' in x else 0).astype(np.int32)
     processed_data.drop(['Floors'], axis=1, inplace=True)
 
     # Parse estimated neighbourhood price per m2
@@ -204,7 +192,6 @@ def get_gps_loc_from_address(street: str, city: str):
         with open('coords_log.txt', 'a', encoding='utf-8') as f:
                 f.write('=======\n')
                 f.write(f'Error for {street}, {city}: {e}\n')
-                # f.write(f'{data}\n')
                 f.write('=======\n')
         return 0, 0
 
