@@ -1,5 +1,6 @@
 import sys
 sys.path.append("../../")
+from copy import deepcopy
 
 import pandas as pd
 
@@ -9,6 +10,7 @@ from notebooks.fc.hyperparams import hyperparameter as fc_hyperparams
 from notebooks.kc.hyperparams import hyperparameter as kc_hyperparameter
 from notebooks.poa.hyperparams import hyperparameter as poa_hyperparameter
 from notebooks.sp.hyperparams import hyperparameter as sp_hyperparameter
+from notebooks.nl.hyperparams import hyperparameter as nl_hyperparameter
 
 envs = {
     "kc": {
@@ -32,7 +34,7 @@ envs = {
         "sequence": "2400"
     },
     "nl": {
-        "hyperparameter": fc_hyperparams,
+        "hyperparameter": nl_hyperparams,
         "max_neighbours": [50, 50, 100, 100, 250, 650, 1100, 1900],
         "sequence": "2400"
     }
@@ -74,7 +76,7 @@ if __name__ == "__main__":
     for i in range(ITERATIONS):
         print("Training on {}".format(env_name))
         
-        params = envs[env_name]["hyperparameter"]
+        params = deepcopy(envs[env_name]["hyperparameter"])
         df = train_and_save(env_name, params, df, iteration=i+1) # original run
 
         params["use_masking"] = True
