@@ -1,5 +1,6 @@
 import sys
 sys.path.append("../../")
+from copy import deepcopy
 
 import pandas as pd
 
@@ -9,11 +10,12 @@ from notebooks.fc.hyperparams import hyperparameter as fc_hyperparams
 from notebooks.kc.hyperparams import hyperparameter as kc_hyperparameter
 from notebooks.poa.hyperparams import hyperparameter as poa_hyperparameter
 from notebooks.sp.hyperparams import hyperparameter as sp_hyperparameter
+from notebooks.nl.hyperparams import hyperparameter as nl_hyperparameter
 
 envs = {
     "kc": {
         "hyperparameter": kc_hyperparameter,
-        "max_neighbours": [50, 50, 50, 50, 50, 100, 150, 250], # efficient value for each of the thresholds
+        "max_neighbours": [50, 50, 50, 50, 50, 100, 150, 250], # efficient value for each of the thresholds, just to not keep more data in memory than needed
         "sequence": "300" # dataset number of neihbours to use, just for efficiency
     },
     "poa": {
@@ -29,6 +31,11 @@ envs = {
     "fc": {
         "hyperparameter": fc_hyperparams,
         "max_neighbours": [50, 50, 150, 250, 500, 1050, 1550, 2250],
+        "sequence": "2400"
+    },
+    "nl": {
+        "hyperparameter": nl_hyperparams,
+        "max_neighbours": [50, 50, 100, 100, 250, 650, 1100, 1900],
         "sequence": "2400"
     }
 }
@@ -59,6 +66,8 @@ if __name__ == "__main__":
 
     thresholds = [0.01, 0.05, 0.1, 0.2, 0.35, 0.6, 0.8, 1.0]
     env_name = sys.argv[1]
+    if env_name == "nl":
+        thresholds = [0.1, 1.0, 2.5, 5.0, 10.0, 25.0, 35.0, 50.0] # different thresholds for nl
 
     assert len(thresholds) == len(envs[env_name]["max_neighbours"])
 
@@ -67,8 +76,7 @@ if __name__ == "__main__":
     for i in range(ITERATIONS):
         print("Training on {}".format(env_name))
         
-        params = envs[env_name]["hyperparameter"]
-        params["epochs"] = 5
+        params = deepcopy(envs[env_name]["hyperparameter"])
         df = train_and_save(env_name, params, df, iteration=i+1) # original run
 
         params["use_masking"] = True
