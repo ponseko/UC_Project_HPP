@@ -77,7 +77,7 @@ class train:
                               num_nearest_eucli=self.NUM_NEAREST_EUCLI)
 
         # save architecture image
-        spatial.architecture(model, 'architecture_'+self.LABEL)
+        # spatial.architecture(model, 'architecture_'+self.LABEL)
 
 
         # fitt of the model

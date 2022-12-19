@@ -290,8 +290,8 @@ class AttentionSpatialInterpolationModel:
         # checkpoint
         weights_locate = label + '_weights.hdf5'
         filepath = self.path + '/output/models/' + self.id_dataset + '/' + weights_locate
-        checkpoint = ModelCheckpoint(filepath, monitor='val_loss', verbose=1, save_best_only=True,
-                                     save_weights_only=True, mode='min')
+        # checkpoint = ModelCheckpoint(filepath, monitor='val_loss', verbose=1, save_best_only=True,
+        #                             save_weights_only=True, mode='min')
 
         # Fit o model
 
@@ -321,11 +321,11 @@ class AttentionSpatialInterpolationModel:
         if self.early_stopping:
             fit = model.fit(features, [self.y_train], epochs=epochs, batch_size=batch_size,
                             validation_split=validation_split, verbose=1,
-                            callbacks=[ud.history, ud.early_stopping, checkpoint])
+                            callbacks=[ud.history, ud.early_stopping])
 
         else:
             fit = model.fit(features, [self.y_train], epochs=epochs, batch_size=batch_size,
-                            validation_split=validation_split, verbose=1, callbacks=[ud.history, checkpoint])
+                            validation_split=validation_split, verbose=1, callbacks=[ud.history])
 
         return weights_locate, fit
 
