@@ -1,4 +1,4 @@
-hyperparameter={
+hyperparameter = {
     "num_nearest":60,
     "sigma":10,
     "learning_rate":0.001,
