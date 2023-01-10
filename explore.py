@@ -13,11 +13,11 @@ hyperparameter={
     "size_embedded":50,
     "num_nearest_geo":5,
     "num_nearest_eucli":5,
-    "id_dataset":'poa',
+    "id_dataset":'kc',
     "epochs":20,
     "optimier":'adam',
     "validation_split":0.1,
-    "label":'asi_fc',
+    "label":'asi_kc',
     "early_stopping": False,
     "graph_label":'matrix',
     "use_masking": True, # new param. Set num_nearest, num_nearest_geo, num_nearest_eucli the same value
