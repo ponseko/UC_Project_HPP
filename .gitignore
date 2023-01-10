@@ -1,3 +1,6 @@
+/datasets/*/data2400.npz
+/datasets/*/data1200.npz
+/datasets/*/data300.npz
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
