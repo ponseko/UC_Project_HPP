@@ -12,13 +12,14 @@ dataset can be any of:
 -   sp
 -   nl
 
+WARNING: running the full experiments, most notably on the fc dataset, requires a large amount of RAM.
+The kc dataset experiments may be possible to run on a local computer with sufficient ram (16/32g).
+
 The results folder contains results from our experiments along with a notebook of visualizing them.
 
 ### Data
 
 For the main experiments, it is required to download larger data files from [here](https://leidenuniv1-my.sharepoint.com/:f:/g/personal/s1861581_vuw_leidenuniv_nl/EhQCxNUxMT1IkC6_yECd0k8BcwKgQ5O29v6zQCG3zxiIHA) and place them in their respective datasets folder.
-
-The requirements on some of the datasets (particularly fc, may require a very large amount of RAM).
 
 ### Requirements
 
